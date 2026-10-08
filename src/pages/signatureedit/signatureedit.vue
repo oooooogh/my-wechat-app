@@ -1,15 +1,15 @@
 <template>
 	<view class="signatureedit">
         <view style="display: flex">
-            <input 
+            <input
                 class="input"
                 :class="{'input-on': isInputFocused}"
-                v-model.trim="signature" 
+                v-model.trim="signature"
                 @focus="isInputFocused = true"
                 @blur="isInputFocused = false"
             />
-            <button 
-                class="button" 
+            <button
+                class="button"
                 :disabled="isButtonDisabled"
                 hover-class="button-hover"
                 @click="handleSave"
@@ -22,6 +22,9 @@
 </template>
 
 <script>
+	import config from '@/config';
+	import { put } from '@/utils/request';
+
 	export default {
 		data() {
 			return {
@@ -35,70 +38,52 @@
             }
         },
 		methods: {
-            handleSave(){
-                 uni.showToast({
-                    title: '保存成功',
-                    icon: 'success'
-                });
+            async handleSave(){
+                if (config.useMock) {
+                    uni.showToast({
+                        title: '保存成功',
+                        icon: 'success'
+                    });
 
-                uni.$emit('signature-updated',this.signature);
+                    uni.$emit('signature-updated',this.signature);
 
-                setTimeout(() => {
-                    uni.navigateBack();
-                },800);
+                    setTimeout(() => {
+                        uni.navigateBack();
+                    },800);
 
-                // uni.showLoading({
-                //     title: '保存中...',
-                //     mask: true
-                // });
+                    return;
+                }
 
-                // uni.request({
-                //     url: 'http://localhost:8080/api/users/getProfile',
-				// 	method: 'PUT',
-                //     data: {
-                //         signature: this.signature
-                //     },
-                //     success: (res) => {
-                //         if(res.statusCode === 200){
-                //             uni.showToast({
-                //                 title: '保存成功',
-                //                 icon: 'success'
-                //             });
+                try {
+                    await put('/api/users/getProfile', { signature: this.signature });
 
-                //             uni.$emit('signature-updated',this.signature);
+                    uni.showToast({
+                        title: '保存成功',
+                        icon: 'success'
+                    });
 
-                //             setTimeout(() => {
-                //                 uni.navigateBack();
-                //             },800);
-                //         }
-                //         else{
-                //             uni.showToast({
-                //                 title: res.data.message || '保存失败',
-                //                 icon: 'none'
-                //             });
-                //         }
-                //     },
-                //     fail: (err) => {
-                //         console.error('API请求失败',err);
-                //         uni.showToast({
-                //             title: '网络错误，请重试',
-                //             icon: 'none'
-                //         });
-                //     },
-                //     complete: () => {
-                //         uni.hideLoading();
-                //     }
-                // });
+                    uni.$emit('signature-updated',this.signature);
+
+                    setTimeout(() => {
+                        uni.navigateBack();
+                    },800);
+                }
+                catch (err) {
+                    console.error('保存简介失败', err);
+                    uni.showToast({ title: '保存失败，请检查网络', icon: 'none' });
+                }
             }
 		}
 	}
 </script>
+
 
 <style>
     .signatureedit{
         display: flex;
         flex-direction: column;
     }
+
 
 	.input {
         margin: 22px 0px 5px 22px;
@@ -107,9 +92,11 @@
         width: 300px;
 	}
 
+
     .input-on{
         border-bottom: 1rpx solid #40A2FF;
     }
+
 
     .button{
         background-color: #40A2FF;
@@ -119,26 +106,30 @@
         font-size: 13px;
         padding: 0;
         margin: 17px 0 5px 10px;
-        display: flex; 
+        display: flex;
         align-items: center;
-        justify-content: center; 
+        justify-content: center;
         transition: background-color 0.2s;
     }
+
 
     .button-hover{
         background-color: #3281ca;
         color: rgb(211, 210, 210);
     }
 
+
     .button:disabled{
         background-color: #f3f1f1;
         color: #ccc9c9;
     }
+
 
     .hint{
         margin: 5px 22px;
 		font-size: 13px;
 		color:#ababab;
     }
+
     
 </style>

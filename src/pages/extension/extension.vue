@@ -7,9 +7,9 @@
 			<view class="outexpcontainer" :style="{ width: expwidth + 20 + 'px' }">
 				<view class="inexpcontainer" :style="{ width: expwidth + 'px' , height: expheight + 'px'}">
 					<view id="my-expcontainer" class="expcontainer">
-						<Uploader 
-							ref="mainUploader"  
-							crosshairSize="50px" 
+						<Uploader
+							ref="mainUploader"
+							crosshairSize="50px"
 							mode="Canvas"
 							@image-chosen="onImageChosen"
 							@touch-start="onTouchStart"
@@ -22,14 +22,14 @@
 
 			<!-- 导航栏 -->
 			<view class="component">
-				<view 
+				<view
 					v-for="item in tabbarList"
 					:key="item.id"
 					class="comcontainer"
 				>
-					<text 
-						class="comtext" 
-						:class="{ 'active-white' : item.id === tabbarActiveId }" 
+					<text
+						class="comtext"
+						:class="{ 'active-white' : item.id === tabbarActiveId }"
 						@click="handleChangeTabbar(item.id)"
 					>
 						{{ item.text }}
@@ -39,7 +39,7 @@
 		</view>
 
 		<!-- 取消 保存 收藏 -->
-		<view class="editbutton" v-if="tabbarActiveId!==5">  <!-- 调色盘时不渲染 -->
+		<view class="editbutton" v-if="tabbarActiveId!==5">
 			<view class="buttoncancle" hover-class="active-cancol">
 				<text style="color: rgb(88, 88, 88); font-size: 14px;" @click="handewithdraw">撤回</text>
 			</view>
@@ -55,7 +55,7 @@
 
 		<!-- 文字：渲染 -->
 		<view class="textcontainer" v-if="tabbarActiveId === 1">
-			<input 
+			<input
 				class="textinput"
 				v-model="text"
 				placeholder="点击输入"
@@ -65,15 +65,15 @@
 					<v-icon name="addd"></v-icon>
 				</view>
 				<view class="colorcontainer">
-					<view 
+					<view
 						v-for="color in colorList"
 						:key="color.name"
 						class="cocon"
 					>
-						<view 
-							class="colors" 
-							:style="{backgroundColor: color.backgroundColor}" 
-							:class="{ 'isSelected': selectedColor === color.name }" 
+						<view
+							class="colors"
+							:style="{backgroundColor: color.backgroundColor}"
+							:class="{ 'isSelected': selectedColor === color.name }"
 							@click="handleColor(color.name)"
 						></view>
 					</view>
@@ -108,7 +108,7 @@
 					<Uploader mode="Uploader" crosshairSize="30px"/>
 				</view>
 			</view>
-			<view 
+			<view
 				v-for="item in expList"
 				:key="item.id"
 				class="layeredcontainer"
@@ -120,42 +120,42 @@
 		<!-- 裁剪 -->
 		<view class="crop" v-if="tabbarActiveId === 3">
 			<view class="proportion">
-				<view 
+				<view
 					v-for="pro in proporList"
 					:key="pro.id"
-					class="procontainer" 
+					class="procontainer"
 					@click="handlePropor(pro.id)"
 				>
-					<view 
+					<view
 						:style="{ height: '45px', width: pro.width }"
 						:class=" selectedPorId === pro.id ? 'pro-active': 'pro-positive' "
 					></view>
-					<text 
-						style="text-align: center;" 
+					<text
+						style="text-align: center;"
 						:class=" selectedPorId === pro.id ? 'protext-active': 'protext-positive' "
 					>
 						{{ pro.text }}
 					</text>
 				</view>
 			</view>
-			
+
 			<view class="cropdata">
-				<view 
+				<view
 					v-for="crop in proinputList"
 					:key="crop.id"
 					class="whcontainer"
 				>
 					<text style="color: gray;">{{ crop.text }}</text>
 					<view class="cropinputcontainer">
-						<input 
+						<input
 							type="digit"
-							class="cropinput" 
+							class="cropinput"
 							:class="{ 'cropfocus': focusinputId === crop.id }"
-							v-model="crop.cropwh" 
+							v-model="crop.cropwh"
 							@focus="handleinputonFocus(crop.id)"
 							@blur="handleinputonBlur(crop.id)"
 						>
-					</view>	
+					</view>
 				</view>
 			</view>
 		</view>
@@ -169,12 +169,12 @@
 			<view class="controls-panel">
 				<view class="brush-control">
 					<text class="label">马赛克大小</text>
-					<slider 
+					<slider
 						class="brush-slider"
 						:value="brushSize"
-						min="10" 
-						max="50" 
-						@changing="onBrushSizeChange" 
+						min="10"
+						max="50"
+						@changing="onBrushSizeChange"
 						activeColor="#007AFF"
 						backgroundColor="#EFEFEF"
 						block-color="#007AFF"
@@ -199,8 +199,7 @@
 				expwidth: 200,
 				expheight: 200,
 
-
-				tabbarActiveId: 1,	//默认1：文字，2：叠图，3：裁剪，4：马赛克，5：调色盘
+				tabbarActiveId: 1, //默认1：文字，2：叠图，3：裁剪，4：马赛克，5：调色盘
 				tabbarList:[
 					{ id: 1, text: '文字' },
 					{ id: 2, text: '叠图' },
@@ -222,14 +221,13 @@
 				isSaved: false, //判断是否修改过图片
 				history: [], // 历史记录栈，用于撤销
 				//eg: [
-				//   { imagePath: '...', imageWidth: 200, imageHeight: 150 }, 
-				//	 { imagePath: '...', imageWidth: 100, imageHeight: 100 }, 
+				//   { imagePath: '...', imageWidth: 200, imageHeight: 150 },
+				//	 { imagePath: '...', imageWidth: 100, imageHeight: 100 },
 				// ]
 
 				selectedLayerIndex: -1, // 当前活动/选中的图层索引
-				isDragging: false,      // 是否正在拖动
+				isDragging: false, // 是否正在拖动
 				dragStartPoint: { x: 0, y: 0 }, // 拖动起始点
-
 
 				// 文字部分
 				// 颜色选择
@@ -241,9 +239,9 @@
 					{ name: 'green', backgroundColor: '#35c72f' },
 					{ name: 'black', backgroundColor: 'black' }
 				],
-				
+
 				// 文字部分：修改文字,文字部分input绑定
-				text: "", 
+				text: "",
 
 				// 文字部分：color-picker
 				colorData: {
@@ -273,7 +271,6 @@
 					{ id: 2, text: '确定' }
 				],
 
-				
 				// 叠图部分
 				expList:[
 					{ id: '1', src: '/static/1.jpg' },
@@ -282,7 +279,6 @@
 					{ id: '4', src: '/static/4.jpg' }
 				],
 
-				
 				//裁剪部分
 				selectedPorId: '',
 				proporList: [
@@ -303,9 +299,9 @@
 					y: 50,
 					width: 50,
 					height: 50,
-					
+
 					// 裁剪框的八个拖动点
-					handles: [] 
+					handles: []
 				},
 
 				isResizing: false, // 是否正在调整裁剪框大小
@@ -315,7 +311,6 @@
 				lastRedrawTime: 0, // 记录上一次重绘的时间戳
     			redrawInterval: 20, // 重绘的最小时间间隔（节流阀值）
 
-				
 				//马赛克			
 				brushSize: 16, // 马赛克画笔(方块)大小
 				// 节流阀，防止 touchmove 过于频繁触发
@@ -324,9 +319,12 @@
 			}
 		},
 		onReady() {
-			wx.getSystemInfo({ // color-picker获取高宽度
+			uni.getSystemInfo({
 				success: (res) => {
 					this.rpxRatio = res.screenWidth / 750;
+				},
+				fail: (err) => {
+					console.error('获取系统信息失败', err);
 				}
 			});
 		},
@@ -352,7 +350,7 @@
 					this.editingTextLayer = newLayer;
 					// 同时也将它推入 layers 数组，以便被绘制
 					this.layers.push(this.editingTextLayer);
-				} 
+				}
 				// 如果 editingTextLayer 已存在
 				else if (this.editingTextLayer) {
 					// 如果用户清空了输入框，就从画布上移除这个图层
@@ -364,13 +362,13 @@
 						}
 						// 重置 editingTextLayer
 						this.editingTextLayer = null;
-					} 
+					}
 					else {
 						// 否则，只更新它的文字内容
 						this.editingTextLayer.content = newVal;
 					}
 				}
-				
+
 				//标记修改过了
 				this.isSaved = true;
 				// 每次变化后都重绘整个画布
@@ -398,10 +396,10 @@
 								if(this.tabbarActiveId === 1) this.confirmText();
 
 								this.changeBackgroundImage();
-								
+
 								this.tabbarActiveId = id;
 								this.isSaved = false;
-							} 
+							}
 							else if (res.cancel) {
 								console.log('用户点击取消');
 								if(this.tabbarActiveId === 3) this.redrawCanvas({hideCropUI:false});
@@ -478,7 +476,7 @@
 				if (!this.context) {
 					this.context = this.$refs.mainUploader.getCanvasContext();
 				}
-				
+
 				this.history = [{imagePath: this.imagePath, imageWidth: this.expwidth, imageHeight: this.expheight}]; // 保留历史记录功能
 
 				// 裁剪的时候画出裁剪框
@@ -488,7 +486,7 @@
 					this.cropBox.height = 50;
 					this.cropBox.x = this.expwidth / 2 - this.cropBox.width / 2;
 					this.cropBox.y = this.expheight / 2 - this.cropBox.height / 2;
-					
+
 					this.redrawCanvas({hideCropUI:false});
 				}
 				else this.redrawCanvas();
@@ -514,8 +512,8 @@
 							// 直接使用图层对象中的 src(图片路径), x, y, width, height 进行绘制
 							ctx.drawImage(layer.src, layer.x, layer.y, layer.width, layer.height);
 							 // 绘制命令是同步的，直接完成
-                			resolve(); 
-						} 
+                			resolve();
+						}
 						else if (layer.type === 'text') {
 							// 文字图层
                 			// 设置颜色和字体
@@ -545,7 +543,6 @@
 
 			},
 
-
 			// 保存
 			handlesave(){
 				if(!this.imagePath) {
@@ -561,6 +558,7 @@
 						break;
 					case 3:
 						this.confirmCrop();
+						break;
 					case 4:
 						break;
 				}
@@ -600,7 +598,7 @@
 									this.proinputList[0].cropwh = 50;
 									this.proinputList[1].cropwh = 50;
 								}
-							} 
+							}
 							else if (res.cancel) {
 								console.log('用户点击取消');
 							}
@@ -618,7 +616,7 @@
 				// 撤回文字和叠图
 				// 将最近添加的元素弹出并马上画剩余元素
 				else if(this.layers.length > 1) {
-					
+
 					this.layers.pop();
 					this.redrawCanvas();
 				}
@@ -651,8 +649,6 @@
 
 			// 收藏
 			handlecollect(){
-				const token = uni.getStorageSync('token');
-
 				if(!this.imagePath) {
 					uni.showToast({ title:'请先选择图片', icon:'error'});
 					return;
@@ -675,45 +671,10 @@
 								title: '收藏成功',
 								icon: 'success'
 							});
-							// uni.request({
-							// 	url: '',
-							// 	method: 'POST',
-							// 	data: {
-							// 		Image: this.imagePath
-							// 	},
-							// 	header:{
-							// 		'AccessToken' : token
-							// 	},
-							// 	success: (res) => {
-							// 		if (res.statusCode === 200){
-							// 			uni.showToast({
-							// 				title: '收藏成功',
-							// 				icon: 'success'
-							// 			});
-							// 		}
-							// 		else{
-							// 			uni.showToast({
-							// 				title: '收藏失败',
-							// 				icon: 'error'
-							// 			});
-							// 		}
-							// 	},
-							// 	fail: (err) => {
-							// 		console.error('API请求失败',err);
-							// 		uni.showToast({
-							// 			title: '网络似乎出了点问题',
-							// 			icon: 'none'
-							// 		});
-							// 	},
-							// 	complete: () => {
-							// 		//请求成功后将showLoading关闭
-							// 		uni.hideLoading();
-							// 	}
-							// });
 						}
 						else if(res.cancel){ // 收藏到本地
 							uni.showLoading({ title: '正在保存...' });
-							
+
 							uni.canvasToTempFilePath({
 								canvasId: 'mosaicCanvas',
 								success: (res) => {
@@ -765,17 +726,17 @@
 			handleColor(name){
 				if (this.selectedColor === name) return;
 				this.selectedColor = name;
-				
+
 				// 从颜色列表中找到对应的颜色值
 				const newColor = this.colorList.find(c => c.name === name)?.backgroundColor;
 				if (!newColor) return; // 如果没找到颜色，则退出
 
 				// 判断是否存在正在编辑的文字图层
 				if (this.editingTextLayer) {
-					
+
 					// 如果存在，直接修改该图层的 color 属性
 					this.editingTextLayer.color = newColor;
-					
+
 					// 立刻重绘画布，将颜色变化显示出来
 					this.redrawCanvas();
 				}
@@ -802,10 +763,10 @@
 					const color = this.colorData.pickerData;
 					// 判断是否存在正在编辑的文字图层
 					if (this.editingTextLayer) {
-						
+
 						// 如果存在，直接修改该图层的 color 属性
 						this.editingTextLayer.color = color.hex;
-						
+
 						// 立刻重绘画布，将颜色变化显示出来
 						this.redrawCanvas();
 					}
@@ -814,14 +775,13 @@
 				}
 			},
 
-
 			// 叠图部分
 			// 将图片添加到画布上
 			addImageLayer(src) {
 				const newImageLayer = {
 					type: 'image',
 					src: src,
-					x: this.expwidth / 2 -40, 
+					x: this.expwidth / 2 -40,
 					y: this.expheight - 90,
 					width: 80, // 初始大小
 					height: 80
@@ -860,7 +820,6 @@
 				});
 			},
 
-
 			//拖动部分
 			onTouchStart(e) {
 				// 根据当前激活的模式，决定调用哪个具体的 "Start" 函数
@@ -870,7 +829,7 @@
 						this.handleDragStart(e);
 						break;
 					case 3: // 裁剪模式
-						this.handleCropStart(e); 
+						this.handleCropStart(e);
 						break;
 					case 4: // 马赛克模式
 						this.handleMosaicStart(e);
@@ -898,19 +857,18 @@
 
 			onTouchEnd(e) {
 				// 触摸结束时，需要重置所有模式的状态
-				
+
 				// 无论是哪个模式，触摸结束时都应该结束拖动状态
 				if (this.isDragging) {
 					this.handleDragEnd(e);
 				}
-				
+
 				// 如果是马赛克模式，也调用它的结束函数
 				if (this.tabbarActiveId === 4) {
 					this.handleMosaicEnd(e);
 				}
-				
-				// 裁剪模式
-				if (this.tabbarActiveId === 3 && this.isResizing || this.isDraggingCropBox) {
+
+				if (this.tabbarActiveId === 3 && (this.isResizing || this.isDraggingCropBox)) {
 				    this.handleCropEnd(e);
 				}
 			},
@@ -921,11 +879,11 @@
 				// 从最上层的图层开始倒序查找 (i > 0 是为了跳过背景图层)
 				for (let i = this.layers.length - 1; i > 0; i--) {
 					const layer = this.layers[i];
-					
+
 					// 【核心】碰撞检测：判断点击坐标(x, y)是否在图层的矩形区域内
 					let layerWidth, layerHeight;
 					let isHit = false;
-					
+
 					if (layer.type === 'text') { //文字
 						layerWidth = layer.content.length * parseFloat(layer.font);
 						layerHeight = parseFloat(layer.font); // 高度约等于字号
@@ -933,7 +891,7 @@
 						if (x >= layer.x && x <= layer.x + layerWidth && y >= layer.y - layerHeight && y <= layer.y) {
 							isHit = true;
 						}
-					} 
+					}
 					else { // 叠图					
 						layerWidth = layer.width;
 						layerHeight = layer.height;
@@ -947,11 +905,11 @@
 						console.log(`SUCCESS: Layer ${i} was hit! Selecting it.`);
 						this.isDragging = true;
 						this.selectedLayerIndex = i;
-						this.dragStartPoint = { 
-							offsetX: x - layer.x, 
-							offsetY: y - layer.y 
+						this.dragStartPoint = {
+							offsetX: x - layer.x,
+							offsetY: y - layer.y
 						};
-						return; 
+						return;
 					}
 				}
 			},
@@ -961,12 +919,12 @@
 				const { x, y } = e.touches[0];
 				// 获取当前正在拖动的图层对象
 				const activeLayer = this.layers[this.selectedLayerIndex];
-				
+
 				// 更新图层的 x, y 坐标
 				// 新坐标 = 当前手指坐标 - 之前记录的偏移量
 				activeLayer.x = x - this.dragStartPoint.offsetX;
 				activeLayer.y = y - this.dragStartPoint.offsetY;
-				
+
 				// 立刻重绘画布，实现实时拖动效果
 				this.redrawCanvas();
 			},
@@ -982,7 +940,7 @@
 				if(this.selectedPorId === id) return;
 				this.selectedPorId = id;
 
-				if(id === 1){  // 2:3
+				if(id === 1){ // 2:3
 					const width = this.expwidth / 2;
 					const height = this.expheight / 3;
 
@@ -991,7 +949,7 @@
 					this.cropBox.x = width > height ? width - height : 0;
 					this.cropBox.y = width > height ? 0 : height*3/2 - width*3/2;
 				}
-				else if(id === 2){  // 1:1
+				else if(id === 2){ // 1:1
 					const width = this.expwidth;
 					const height = this.expheight;
 
@@ -1000,7 +958,7 @@
 					this.cropBox.x = width > height ? width/2 - height/2 : 0;
 					this.cropBox.y = width > height ? 0 : height/2 - width/2;
 				}
-				else if(id === 3){  // 4:3
+				else if(id === 3){ // 4:3
 					const width = this.expwidth / 4;
 					const height = this.expheight / 3;
 
@@ -1009,7 +967,7 @@
 					this.cropBox.x = width > height ? (width*4/2) - (height*4/2) : 0;
 					this.cropBox.y = width > height ? 0 : (height*3/2) - (width*3/2);
 				}
-				else if(id === 4){  // 16:9
+				else if(id === 4){ // 16:9
 					const width = this.expwidth / 16;
 					const height = this.expheight / 9;
 
@@ -1033,14 +991,34 @@
 			handleinputonBlur(id){
 				this.focusinputId = '';
 				if(id === 1) {
+					const originWidth = this.cropBox.width;
 					// 将字符串转为数字
-					const value = parseFloat(this.proinputList[0].cropwh);
-					
+					let value = parseFloat(this.proinputList[0].cropwh);
+
+					if (!isFinite(value) || value < 1) {
+						value = originWidth;
+						this.proinputList[0].cropwh = originWidth;
+					}
+					else if (value > this.expwidth) {
+						value = this.expwidth;
+						this.proinputList[0].cropwh = this.expwidth;
+					}
+
 					this.cropBox.width = value;
 				}
 				else {
-					const value = parseFloat(this.proinputList[1].cropwh);
-					
+					const originHeight = this.cropBox.height;
+					let value = parseFloat(this.proinputList[1].cropwh);
+
+					if (!isFinite(value) || value < 1) {
+						value = originHeight;
+						this.proinputList[1].cropwh = originHeight;
+					}
+					else if (value > this.expheight) {
+						value = this.expheight;
+						this.proinputList[1].cropwh = this.expheight;
+					}
+
 					this.cropBox.height = value;
 				}
 				this.redrawCanvas({hideCropUI:false});
@@ -1051,16 +1029,15 @@
 				const box = this.cropBox;
 				const handleSize = 7; // 控制点的大小
 
-				
 				// 绘制半透明的灰色蒙层
 				ctx.setFillStyle('rgba(0, 0, 0, 0.5)');
 				ctx.fillRect(box.x, box.y, box.width, box.height);
-				
+
 				// 绘制裁剪框的白色边框
 				ctx.setStrokeStyle('white');
 				ctx.setLineWidth(1);
 				ctx.strokeRect(box.x, box.y, box.width, box.height);
-				
+
 				// 绘制8个控制点，并更新它们的位置信息
 				ctx.setFillStyle('rgb(210, 210, 210)');
 				this.cropBox.handles = [
@@ -1073,7 +1050,7 @@
 					{ x: box.x + box.width / 2, y: box.y + box.height, name: 'bottom-center' }, // 下中
 					{ x: box.x + box.width, y: box.y + box.height, name: 'bottom-right' } // 右下
 				];
-				
+
 				this.cropBox.handles.forEach(handle => {
 					// 以控制点中心为原点绘制方块
 					ctx.fillRect(handle.x - handleSize / 2, handle.y - handleSize / 2, handleSize, handleSize);
@@ -1091,19 +1068,19 @@
 				for (const handle of this.cropBox.handles) {
 					if (x >= handle.x - handleSize / 2 && x <= handle.x + handleSize / 2 &&
 						y >= handle.y - handleSize / 2 && y <= handle.y + handleSize / 2) {
-						
+
 						this.isResizing = true;
 						this.activeHandle = handle.name;
 						return;
 					}
 				}
-				
+
 				// 2. 如果没点中控制点，再检查是否点中了裁剪框内部（用于拖动）
 				if (x >= this.cropBox.x && x <= this.cropBox.x + this.cropBox.width &&
 					y >= this.cropBox.y && y <= this.cropBox.y + this.cropBox.height) {
 
 					this.isDraggingCropBox = true;
-					this.dragStartPoint = { 
+					this.dragStartPoint = {
 						x: x,
 						y: y,
 						boxX: this.cropBox.x,
@@ -1118,7 +1095,7 @@
 				// 如果当前时间距离上一次重绘的时间小于我们设定的间隔
 				if (now - this.lastRedrawTime < this.redrawInterval) {
 					// 则直接退出，不执行本次的绘图，等待下一次事件
-					return; 
+					return;
 				}
 				// 如果时间间隔足够，则更新时间戳，并继续执行本次绘图
 				this.lastRedrawTime = now;
@@ -1128,21 +1105,21 @@
 
 				const { x, y } = e.touches[0];
 				const box = this.cropBox;
-				
+
 				// A. 如果是拖动整个框
 				if (this.isDraggingCropBox) {
 					const deltaX = x - this.dragStartPoint.x;
 					const deltaY = y - this.dragStartPoint.y;
 					box.x = this.dragStartPoint.boxX + deltaX;
 					box.y = this.dragStartPoint.boxY + deltaY;
-				} 
+				}
 				// B. 如果是缩放
 				else if (this.isResizing) {
 					const oldX = box.x;
 					const oldY = box.y;
 					const oldWidth = box.width;
 					const oldHeight = box.height;
-					
+
 					switch (this.activeHandle) {
 						case 'top-left':
 							box.width = oldWidth + (oldX - x);
@@ -1205,6 +1182,11 @@
 
 			// 裁剪保存
 			confirmCrop() {
+				if (this.cropBox.width < 1 || this.cropBox.height < 1) {
+					uni.showToast({ title: '裁剪区域无效', icon: 'none' });
+					return;
+				}
+
 				uni.showLoading({ title: '正在裁剪...' });
 
 				// 第1步：调用 redrawCanvas，并传入配置 { hideCropUI: true }，命令它【不要】绘制裁剪框UI。
@@ -1246,7 +1228,6 @@
 								height: this.expheight
 							}];
 
-							
 							// 重绘
 							this.$nextTick(() => {
 								// 初始化比例选择
@@ -1281,7 +1262,7 @@
 			 */
 			handleMosaicStart(e) {
 				if (!this.imagePath) return;
-				
+
 				const { x, y } = e.touches[0];
 				this.applyMosaic(x, y);
 			},
@@ -1320,8 +1301,10 @@
 			 * 核心：绘制马赛克
 			 */
 			applyMosaic(x, y) {
+				if (!this.context) return;
+
 				const size = this.brushSize;
-				
+
 				// 计算当前触摸点所在的网格的左上角坐标
 				const mosaicX = Math.floor(x / size) * size;
 				const mosaicY = Math.floor(y / size) * size;
@@ -1343,9 +1326,9 @@
 						// 使用获取到的颜色填充整个马赛克方块
 						this.context.setFillStyle(`rgb(${r},${g},${b})`);
 						this.context.fillRect(mosaicX, mosaicY, size, size);
-						
+
 						// 将绘制操作应用到画布上
-						this.context.draw(true); 
+						this.context.draw(true);
 
 					},
 					fail: (err) => {
@@ -1405,7 +1388,7 @@
 		background-color: #ffffff;
 	}
 
-	.expcontainer{ 
+	.expcontainer{
 		display: flex;
 		width: 100%;
 		flex-direction: column;
@@ -1459,7 +1442,7 @@
 		border-radius: 8px;
 		text-align: center;
 		font-size: 17px;
-		
+
 	}
 	/* 文字颜色 */
 	.colorpick{
@@ -1516,7 +1499,7 @@
 		border-radius: 50%;
 		background-color: black;
 	}
-	
+
 	/* 调色盘 */
 	.colorP {
 		display: flex;
@@ -1536,7 +1519,7 @@
 		width: 100%;
 		margin-top: 15px;
 	}
-	
+
 	.buttonpic{
 		width: 100px;
 		height: 40px;
@@ -1562,9 +1545,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 88px; 
-		height: 45px; 
-		border-radius: 9px 0 0 9px; 
+		width: 88px;
+		height: 45px;
+		border-radius: 9px 0 0 9px;
 		background-color: white;
 	}
 
@@ -1572,9 +1555,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 115px; 
-		height: 53px; 
-		border-radius: 9px; 
+		width: 115px;
+		height: 53px;
+		border-radius: 9px;
 		background-color: rgb(190, 190, 190);
 	}
 
@@ -1582,9 +1565,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 88px; 
-		height: 45px; 
-		border-radius: 0 9px 9px 0; 
+		width: 88px;
+		height: 45px;
+		border-radius: 0 9px 9px 0;
 		background-color: white;
 	}
 
@@ -1605,8 +1588,8 @@
 	}
 
 	.layeredcontainer{
-		display: flex; 
-		justify-content: center; 
+		display: flex;
+		justify-content: center;
 		width: 33.333%;
 	}
 
@@ -1739,7 +1722,7 @@
 		margin-right: 5rpx;
 		width: 180rpx; /* 固定宽度防止抖动 */
 	}
-	
+
 	.brush-control .brush-slider {
 		flex: 1;
 	}

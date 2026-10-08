@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<view 
+		<view
 			v-for="item in filmList"
 			:key="item.collection.collectionId"
 			class="film"
@@ -8,20 +8,17 @@
 			<view class="title" @click="handlegoToFilm(item.collection.collectionId,item.collection.name,item.collection.coverUrl)">
 				<text>{{ item.collection.name }}</text>
 				<v-icon name="right" class="iconright"></v-icon>
-				<!-- <view class="iconlikes" @click.stop="handleCollect(index)">
-					<v-icon name="likes" v-if="item.isCollect === 'true'" class="icon-gray"></v-icon>
-					<v-icon name="likes" v-else></v-icon>
-				</view> -->
+
 			</view>
 			<view class="expcount">
 				<text>{{ item.emojiCount }}个表情</text>
 			</view>
 			<view style="display: flex">
-				<image 
-					v-for="(photo,index) in item.emojis.imageUrl"
+				<image
+					v-for="(photo,index) in item.emojis"
 					:key="index"
-					class="photo" 
-					:src="photo"
+					class="photo"
+					:src="photo.imageUrl"
 				></image>
 			</view>
 		</view>
@@ -29,14 +26,17 @@
 </template>
 
 <script>
+	import config from '@/config'
+	import { get } from '@/utils/request'
+
 	export default {
 		data() {
 			return {
 				userId: 111,
 				filmList: [
-					{	
+					{
 						collection: {
-							collectionId: 1, 
+							collectionId: 1,
 							name: '猫和老鼠',
 							coverUrl: '/static/swiper/5.jpg'
 						},
@@ -47,11 +47,10 @@
 							{imageUrl: '/static/TomJerry/3.jpg'},
 							{imageUrl: '/static/TomJerry/4.jpg'}
 						],
-						// isCollect: false
 					},
-					{	
+					{
 						collection: {
-							collectionId: 2, 
+							collectionId: 2,
 							name: '维维老师',
 							coverUrl: '/static/weiwei/1.jpg'
 						},
@@ -62,11 +61,10 @@
 							{imageUrl: '/static/weiwei/3.jpg'},
 							{imageUrl: '/static/weiwei/4.jpg'}
 						],
-						// isCollect: true
 					},
-					{	
+					{
 						collection: {
-							collectionId: 3, 
+							collectionId: 3,
 							name: 'GGbond',
 							coverUrl: '/static/GGbond/3.jpg'
 						},
@@ -77,11 +75,10 @@
 							{imageUrl: '/static/GGbond/3.jpg'},
 							{imageUrl: '/static/GGbond/4.jpg'}
 						],
-						// isCollect: true
 					},
-					{	
+					{
 						collection: {
-							collectionId: 4, 
+							collectionId: 4,
 							name: '熊出没',
 							coverUrl: '/static/BoonieBear/6.png'
 						},
@@ -92,108 +89,47 @@
 							{imageUrl: '/static/BoonieBear/3.jpg'},
 							{imageUrl: '/static/BoonieBear/4.jpg'}
 						],
-						// isCollect: true
 					},
 				]
 			}
 		},
 		onLoad() {
 			this.userId = uni.getStorageSync('userId');
-			// this.fetchfilm();
+			if (!config.useMock) this.fetchfilm();
 		},
 		methods: {
-			fetchfilm(){
-				const token = uni.getStorageSync('token');
-
+			async fetchfilm(){
 				uni.showLoading({
 					title: '正在加载影视套图',
 					mask: true
 				});
 
-				uni.request({
-					url:`http://localhost:8080/api/user-favorite-collections/user/${this.userId}`,
-					method: 'GET',
-					header:{
-						'AccessToken' : token
-					},
-					success: (res) => {
-						if(res.statusCode === 200 && res.data.data){
-							this.filmList = res.data.data;
-						}
-						else{
-							uni.showToast({
-								title: '获取信息失败',
-								icon: 'error'
-							});
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
-						uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-					},
-					complete: () => {
-						uni.hideLoading();
+				try {
+					const payload = await get('/api/user-favorite-collections/user/' + this.userId);
+					if (payload) {
+						this.filmList = payload;
 					}
-				});
+					else {
+						uni.showToast({
+							title: '获取信息失败',
+							icon: 'none'
+						});
+					}
+				}
+				catch (err) {
+					console.error('API请求失败', err);
+				}
+				finally {
+					uni.hideLoading();
+				}
 			},
 
 			handlegoToFilm(filmid,name,coverUrl){
 				uni.navigateTo({
-					url: `/pages/filmdetail/filmdetail?filmId=${filmid}&filmName=${name}$Cover=${coverUrl}`
+					url: `/pages/filmdetail/filmdetail?filmId=${filmid}&filmName=${name}&coverUrl=${coverUrl}`
 				});
 			},
-			
-			// handleCollect(index){
-			// 	const isCollect = this.filmList[index].isCollect;
 
-			// 	const toast = isCollect === 'false' ? '收藏' : '取消收藏';
-            //     const successToast = toast + '成功';
-            //     const failToast = toast + '失败';
-            //     const loadingTitle = toast + '中...';
-
-            //     this.filmList[index].isCollect = isCollect === 'false' ? 'true' : 'false';
-
-            //     uni.showLoading({
-            //         title: loadingTitle,
-            //         mask: true
-            //     });
-
-            //     uni.request({
-            //         url: '',
-            //         method: 'PATCH',
-            //         data: {
-            //             isCollect: this.filmList[index].isCollect
-            //         },
-            //         success: (res) => {
-            //             if (res.statusCode === 200){
-            //                 uni.showToast({
-            //                     title: successToast,
-            //                     icon: 'success'
-            //                 });
-            //             }
-            //             else{
-            //                 uni.showToast({
-            //                     title: failToast,
-            //                     icon: 'error'
-            //                 });
-            //             }
-            //         },
-            //         fail: (err) => {
-            //             console.error('API请求失败',err);
-            //             uni.showToast({
-            //                 title: '网络似乎出了点问题',
-            //                 icon: 'none'
-            //             });
-            //         },
-            //         complete: () => {
-            //             //请求成功后将showLoading关闭
-            //             uni.hideLoading();
-            //         }
-            //     });
-			// }
 		}
 	}
 </script>
@@ -224,7 +160,7 @@
 		width: 92%;
 		height: 25px;
 		color: #232323;
-		
+
 	}
 
 	.iconright{

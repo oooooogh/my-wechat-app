@@ -7,10 +7,10 @@
 			</view>
 		</view>
 		<view class="information">
-			<view 
+			<view
 				v-for="(item,index) in editList"
 				:key = index
-				class="list" 
+				class="list"
 				hover-class="active-gray"
 				@click="handleclick(item)"
 			>
@@ -25,6 +25,9 @@
 </template>
 
 <script>
+	import config from '@/config';
+	import { put } from '@/utils/request';
+
 	export default {
 		data() {
 			return {
@@ -56,7 +59,7 @@
 			uni.$on('signature-updated', this.handleSignatureUpdate);
 		},
 		onUnload(){
-			uni.$off('name-updated', this.handleNameUpdate)   //防止内存泄漏
+			uni.$off('name-updated', this.handleNameUpdate) //防止内存泄漏
 			uni.$off('signature-updated', this.handleSignatureUpdate);
 		},
 
@@ -73,63 +76,48 @@
 
 						uni.getImageInfo({
 							src: tempFilePath,
-							success: () => {
+							success: async () => {
 								this.avatar = tempFilePath;
 
-								uni.showToast({
-									title: '更换头像成功',
-									icon: 'success'
-								});
+								try {
+									if (config.useMock) {
+										uni.showToast({
+											title: '更换头像成功',
+											icon: 'success'
+										});
 
-								uni.$emit('info-updated',{
-									name: this.name,
-									signature: this.signature,
-									avatar: this.avatar
-								});
+										uni.$emit('info-updated',{
+											name: this.name,
+											signature: this.signature,
+											avatar: this.avatar
+										});
 
-								// uni.request({
-								// 	url: 'http://localhost:8080/api/users/getProfile',
-								// 	method: 'PUT',
-								// 	data: {
-								// 		avatar: this.avatar
-								// 	},
-								// 	success: (res) => {
-								// 		if (res.statusCode === 200){
-								// 			uni.showToast({
-								// 				title: '更换头像成功',
-								// 				icon: 'success'
-								// 			});
+										return;
+									}
 
-								// 			uni.$emit('info-updated',{
-								// 				name: this.name,
-								// 				signature: this.signature,
-								// 				avatar: this.avatar
-								// 			});
-								// 		}
-								// 		else{
-								// 			uni.showToast({
-								// 				title: '更换头像失败',
-								// 				icon: 'error'
-								// 			});
-								// 		}
-								// 	},
-								// 	fail: (err) => {
-								// 		console.error('API请求失败',err);
-								// 		uni.showToast({
-								// 			title: '网络似乎出了点问题',
-								// 			icon: 'none'
-								// 		});
-								// 	},
-								// 	complete: () => {
-								// 		//请求成功后将showLoading关闭
-								// 		uni.hideLoading();
-								// 	}
-								// });
+									await put('/api/users/getProfile', { avatar: this.avatar });
+
+									uni.showToast({
+										title: '更换头像成功',
+										icon: 'success'
+									});
+
+									uni.$emit('info-updated',{
+										name: this.name,
+										signature: this.signature,
+										avatar: this.avatar
+									});
+								}
+								catch (err) {
+									console.error('更换头像失败', err);
+									uni.showToast({ title: '更换头像失败，请检查网络', icon: 'none' });
+								}
+								finally {
+									uni.hideLoading();
+								}
 							},
 							fail: () => {
 								uni.showToast({ title: '获取图片信息失败', icon: 'none' });
-							},
-							complete: () => {
 								uni.hideLoading();
 							}
 						});
@@ -138,11 +126,12 @@
 			},
 
 			handleclick(item){
+				let url = item.url;
 				if(item.key === 'name'){
-					item.url += `?name=${this.name}`;
+					url += `?name=${this.name}`;
 				}
 				uni.navigateTo({
-					url: item.url
+					url: url
 				});
 			},
 

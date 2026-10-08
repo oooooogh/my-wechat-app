@@ -3,7 +3,7 @@
 
         <!-- 搜索框 -->
         <view class="searchbar">
-            <Searchbar 
+            <Searchbar
                 placeholder="想要什么表情包呢"
                 :search-data="mockExpressionData"
                 @selected="handleSearchSelected"
@@ -20,7 +20,7 @@
         <!-- 表情包 -->
         <view class="expressions">
             <view class="expcontainer">
-                <view 
+                <view
                     v-for="item in expList"
                     :key="item.emojiId"
                     class="container"
@@ -33,6 +33,9 @@
 </template>
 
 <script>
+    import config from '@/config'
+    import { get } from '@/utils/request'
+
     export default {
 		data() {
 			return {
@@ -55,45 +58,33 @@
 		},
 		onLoad(option) {
             this.title = option.searchName;
-            // this.fetchSearchResult(this.title);
+            if (!config.useMock) this.fetchSearchResult(this.title)
 		},
 		methods: {
-            fetchSearchResult(searchName){
-                const token = uni.getStorageSync('token');
-
+            async fetchSearchResult(searchName){
                 uni.showLoading({
                     title: '正在加载表情包',
                     mask: true
                 });
 
-                uni.request({
-                    url: `http://localhost:8080/api/emojis/search?keyword=${searchName}`,
-                    method: 'GET',
-                    header: {
-                        'AccessToken' : token
-                    },
-                    success: (res) => {
-                        if(res.statusCode === 200 && res.data.data){
-                            this.exp = res.data.data
-                        }
-                        else{
-                            uni.showToast({
-                                title: '获取信息失败',
-								icon: 'error'
-                            });
-                        }
-                    },
-                    fail: (err) => {
-                        console.error('API请求失败',err),
-                        uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-                    },
-                    complete: () => {
-                        uni.hideLoading();
+                try {
+                    const payload = await get('/api/emojis/search', { keyword: searchName })
+                    if (payload) {
+                        this.expList = payload
                     }
-                })
+                    else{
+                        uni.showToast({
+                            title: '获取信息失败',
+							icon: 'error'
+                        });
+                    }
+                }
+                catch (err) {
+                    console.error('API请求失败',err)
+                }
+                finally {
+                    uni.hideLoading()
+                }
             },
 
             handleSearchSelected(searchName) {

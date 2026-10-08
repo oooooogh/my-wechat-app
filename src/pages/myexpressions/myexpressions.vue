@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
         <view class="expcontainer">
-            <view 
+            <view
                 v-for="item in myexpressionList"
                 :key="item.id"
                 class="expression"
@@ -30,46 +30,8 @@
 			}
 		},
 		onLoad() {
-            // this.fetchmyexpression();
 		},
 		methods: {
-            fetchmyexpression(){
-
-                uni.showLoading({
-                    title: '正在加载表情包',
-                    mask: true
-                });
-
-                uni.request({
-                    url: '',
-                    method: 'GET',
-                    // head:{
-                    //     'Content-Type' : 'application/json'
-                    // },
-                    success: (res) => {
-                        if(res.statusCode === 200 && res.data.myexpressionList){
-                            this.myexpressionList = res.data.myexpressionList;
-                        }
-                        else{
-                            uni.showToast({
-                                title: '获取信息失败',
-								icon: 'error'
-                            });
-                        }
-                    },
-                    fail: (err) => {
-                        console.error('API请求失败',err);
-                        uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-                    },
-                    complete: () => {
-                        uni.hideLoading();
-                    }
-                });
-            },
-
             handleclickexp(expid, exptext, expsrc, isCollect){
 				uni.navigateTo({
 					url: `/pages/expdetail/expdetail?expId=${expid}&expText=${exptext}&expSrc=${expsrc}&isCollect=${isCollect}`
@@ -86,7 +48,7 @@
 		align-items: center;
 		justify-content: center;
         width: 100%;
-        
+
 	}
 
     .expcontainer{
@@ -116,6 +78,5 @@
         margin: 12px 0 6px;
         border-radius: 16%;
     }
-
 
 </style>

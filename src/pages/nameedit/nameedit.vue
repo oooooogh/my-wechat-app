@@ -1,17 +1,17 @@
 <template>
 	<view class="nameedit">
         <view style="display: flex">
-            <input 
+            <input
                 class="input"
                 :class="{'input-on': isInputFocused}"
-                v-model.trim="name" 
+                v-model.trim="name"
                 @focus="isInputFocused = true"
                 @blur="isInputFocused = false"
                 maxlength="20"
                 placeholder="请输入新昵称"
             />
-            <button 
-                class="button" 
+            <button
+                class="button"
                 :disabled="isSaveDisabled"
                 hover-class="button-hover"
                 @click="handleSave"
@@ -24,6 +24,9 @@
 </template>
 
 <script>
+	import config from '@/config';
+	import { put } from '@/utils/request';
+
 	export default {
 		data() {
 			return {
@@ -46,63 +49,41 @@
 		},
 
 		methods: {
-            handleSave(){
+            async handleSave(){
+                if (config.useMock) {
+                    uni.showToast({
+                        title: '保存成功',
+                        icon: 'success'
+                    });
 
-                uni.showToast({
-                    title: '保存成功',
-                    icon: 'success'
-                });
-                
-                uni.$emit('name-updated',this.name);
+                    uni.$emit('name-updated',this.name);
 
                 //延迟一会,能看到提示
-                setTimeout(() => {
-                    uni.navigateBack();
-                },800);
+                    setTimeout(() => {
+                        uni.navigateBack();
+                    },800);
 
-                // uni.showLoading({
-                //     title: '保存中...',
-                //     mask: true
-                // });
+                    return;
+                }
 
-                // uni.request({
-                //     url: 'http://localhost:8080/api/users/getProfile',
-				// 	method: 'PUT',
-                //     data: {
-                //         nickname: this.name
-                //     },
-                //     success: (res) => {
-                //         if(res.statusCode === 200){
-                //             uni.showToast({
-                //                 title: '保存成功',
-                //                 icon: 'success'
-                //             });
-                            
-                //             uni.$emit('name-updated',this.name);
+                try {
+                    await put('/api/users/getProfile', { nickname: this.name });
 
-                //             //延迟一会,能看到提示
-                //             setTimeout(() => {
-                //                 uni.navigateBack();
-                //             },800);
-                //         }
-                //         else{
-                //             uni.showToast({
-                //                 title: res.data.message || '保存失败',
-                //                 icon: 'none'
-                //             });
-                //         }
-                //     },
-                //     fail: (err) =>{
-                //         console.error('API请求失败',err);
-                //         uni.showToast({
-                //             title: '网络错误，请重试',
-                //             icon: 'none'
-                //         });
-                //     },
-                //     complete: () =>{
-                //         uni.hideLoading();
-                //     }
-                // });
+                    uni.showToast({
+                        title: '保存成功',
+                        icon: 'success'
+                    });
+
+                    uni.$emit('name-updated',this.name);
+
+                    setTimeout(() => {
+                        uni.navigateBack();
+                    },800);
+                }
+                catch (err) {
+                    console.error('保存昵称失败', err);
+                    uni.showToast({ title: '保存失败，请检查网络', icon: 'none' });
+                }
             }
 		}
 	}
@@ -133,9 +114,9 @@
         font-size: 13px;
         padding: 0;
         margin: 17px 0 5px 10px;
-        display: flex; 
+        display: flex;
         align-items: center;
-        justify-content: center; 
+        justify-content: center;
         transition: background-color 0.2s;
     }
 

@@ -14,10 +14,10 @@
 
 		<!-- 列表 -->
 		<view class="content-list">
-			<view 
+			<view
 				v-for="(item,index) in manuList"
 				:key = index
-				class="list" 
+				class="list"
 				hover-class="active-gray"
 				@click="handleclick(item)"
 			>
@@ -32,6 +32,9 @@
 </template>
 
 <script>
+	import config from '@/config';
+	import { get } from '@/utils/request';
+
 	export default {
 		data() {
 			return {
@@ -51,11 +54,6 @@
 						text: '收藏影视套图',
 						url: '/pages/favourite_films/favourite_films',
 					},
-					// {
-					// 	icon: 'expression',
-					// 	text: '我合成的表情包',
-					// 	url: '/pages/myexpressions/myexpressions',
-					// },
 					{
 						icon: 'aboutus',
 						text: '关于我们',
@@ -70,47 +68,37 @@
 			}
 		},
 		onLoad() {
-			// this.getuserinformation();
 			uni.$on('info-updated',this.handleDataupdate);
+			if (!config.useMock) this.getuserinformation();
 		},
-		onUnLoad() {
+		onUnload() {
 			uni.$off('info-updated',this.handleDataupdate);
 		},
 		methods: {
-			getuserinformation(){
+			async getuserinformation(){
 				uni.showLoading({
 					title: '加载中',
 					mask: true
 				});
-				uni.request({
-					url: 'http://localhost:8080/api/user/me',
-					method: 'GET',
-					header: {
-						'Content-Type':'application/json'
-					},
-					success: (res) => {
-						if (res.statusCode === 200 && res.data.data){
-							this.userInfo = res.data.data;
-						}
-						else{
-							uni.showToast({
-								title: '获取信息失败',
-								icon: 'error'
-							});
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
+				try {
+					const payload = await get('/api/user/me');
+
+					if (payload) {
+						this.userInfo = payload;
+					}
+					else{
 						uni.showToast({
-							title: '网络似乎出了点问题',
+							title: '获取信息失败',
 							icon: 'none'
 						});
-					},
-					complete: () => {
-						//请求成功后将showLoading关闭
-						uni.hideLoading();
 					}
-				});
+				}
+				catch (err) {
+					console.error('API请求失败',err);
+				}
+				finally {
+					uni.hideLoading();
+				}
 			},
 			handleclick(item){
 				item.isActive = false;
@@ -134,7 +122,7 @@
 
 <style>
 	page {
-		background-color: #FAFAFA; 
+		background-color: #FAFAFA;
 	}
 
 	.information {

@@ -1,13 +1,13 @@
 <template>
 	<view class="home">
 
-		<mp-half-screen-dialog 
+		<mp-half-screen-dialog
 			extClass="halfscreen"
 			@buttontap="buttontap"
 			:closabled="false"
 			:show="isShow"
-			:maskClosable="false" 
-			title="申请使用" 
+			:maskClosable="false"
+			title="申请使用"
 			desc="获取你的昵称、头像"
 			:buttons="buttons"
 		></mp-half-screen-dialog>
@@ -18,7 +18,7 @@
 
 			<!-- 搜索 -->
 			<view class="searchbar">
-				<Searchbar 
+				<Searchbar
 					placeholder="想要什么表情包呢"
 					:search-data="mockExpressionData"
 					@selected="handleSearchSelected"
@@ -26,11 +26,11 @@
 			</view>
 
 			<view class="container">
-				<swiper 
-					class="swiper" 
-					circular 
-					indicator-dots 
-					autoplay 
+				<swiper
+					class="swiper"
+					circular
+					indicator-dots
+					autoplay
 					interval="3000"
 				>
 					<swiper-item v-for="item in swipers" >
@@ -61,7 +61,7 @@
 					</view>
 				</view>
 				<view class="expression">
-					<view 
+					<view
 						v-for="item in expressionList"
 						:key="item.emojiId"
 						class="expcontainer"
@@ -86,11 +86,11 @@
 					</view>
 				</view>
 				<view class="filmexpression">
-					<view 
+					<view
 						v-for="item in filmList"
 						:key="item.collectionId"
 						class="filmcontainer"
-						@click="handleclickfilm(item.collectionId)"
+						@click="handleclickfilm(item.collectionId, item.name, item.coverUrl)"
 					>
 						<image :src="item.coverUrl" class="filmphoto"></image>
 						<text>{{ item.name }}</text>
@@ -103,6 +103,8 @@
 
 <script>
 	import Searchbar from '@/components/Searchbar/Searchbar.vue';
+	import config from '@/config';
+	import { get, post } from '@/utils/request';
 
 	export default {
 		components: {
@@ -155,6 +157,7 @@
 		},
 		onLoad() {
 			this.checkLoginStatus();
+			if (!config.useMock) this.fetchHome();
 		},
 		methods: {
 			buttontap(e){
@@ -171,7 +174,7 @@
 				if (token) {
 					this.token = token;
 					this.isShow = false;
-				} 
+				}
 				else {
 					console.log('未登录');
 				}
@@ -179,63 +182,47 @@
 			// 处理登录
 			async handleLogin() {
 				uni.showLoading({title:'加载中...', mask:true});
-				try {	
-			
-					// // 获取登录凭证 code
-					// const code = await this.getLoginCode();
-			
-					// // 发送 code 到服务器，换取 token
-					// const token = await this.sendCodeToServer(code);
-			
-					// // 存储 token
-					// uni.setStorageSync('token', token);
-					// this.token = token;
+				try {
+					if (config.useMock) {
+						this.isShow = false;
+						uni.showToast({title:'登录成功',icon:'success'});
+						console.log('登录成功');
+						return;
+					}
 
-					// // 获取用户信息
-					// const userInfo = await this.getUserProfile();
-					// this.userInfo = userInfo;
-					// uni.setStorageSync('userId', userInfo.id);
-					
+					const code = await this.getLoginCode();
+					const token = await this.sendCodeToServer(code);
+					uni.setStorageSync('token', token);
+					this.token = token;
+					const userInfo = await this.getUserProfile();
+					uni.setStorageSync('userId', userInfo.id);
+
 					this.isShow = false;
 					uni.showToast({title:'登录成功',icon:'success'});
 					console.log('登录成功');
-
-					uni.hideLoading();
-				} 
+				}
 				catch (error) {
 					this.isShow = false;
 					uni.showToast({title:'登录失败',icon:'error'});
 					console.error('登录失败:', error);
-
+				}
+				finally {
 					uni.hideLoading();
 				}
-				// 登录完用token才能调用
-				// this.fetchHome();
 			},
-		
+
 			// 获取用户信息
 			async getUserProfile() {
-				try {
-					const response = await uni.request({
-						url: 'http://localhost:8080/api/user/me', 
-						method: 'GET',
-						header: {
-							'AccessToken' : this.token
-						},
-					});
-				
-					if (response.statusCode === 200 && response.data.data) {
-						return response.data.data; 
-					} 
-					else {
-						throw new Error('服务器返回错误');
-					}
-				} 
-				catch (error) {
-					throw new Error('请求服务器失败');
+				const payload = await get('/api/user/me');
+
+				if (payload) {
+					return payload;
 				}
+
+				uni.showToast({ title: '获取信息失败', icon: 'none' });
+				throw new Error('获取信息失败');
 			},
-		
+
 			// 获取登录凭证 code
 			getLoginCode() {
 				return new Promise((resolve, reject) => {
@@ -244,7 +231,7 @@
 						success: (res) => {
 							if (res.code) {
 								resolve(res.code);
-							} 
+							}
 							else {
 								reject(new Error('获取 code 失败'));
 							}
@@ -255,124 +242,69 @@
 					});
 				});
 			},
-		
+
 			// 发送 code 到服务器
 			async sendCodeToServer(code) {
-				try {
-					const response = await uni.request({
-						url: 'http://localhost:8080/api/auth/wechat/login', 
-						method: 'POST',
-						header: {
-							'Content-Type' : 'application/json'
-						},
-						data: code
-					});
-				
-					if (response.statusCode === 200 && response.data.data) {
-						return response.data.data; 
-					} 
-					else {
-						throw new Error('服务器返回错误');
-					}
-				} 
-				catch (error) {
-					throw new Error('请求服务器失败');
+				const payload = await post('/api/auth/wechat/login', { code });
+
+				if (payload) {
+					return payload;
 				}
+
+				uni.showToast({ title: '获取信息失败', icon: 'none' });
+				throw new Error('获取信息失败');
 			},
 
-			fetchHome(){
+			async fetchHome(){
 				uni.showLoading({
 					title: '加载中',
 					mask: true
 				});
 
-				uni.request({
-					url: 'http://localhost:8080/api/home',
-					method: 'GET',
-					header: {
-						'AccessToken' : this.token
-					},
-					success: (res) => {
-						if(res.statusCode === 200 && res.data.data.topEmojis && res.data.data.topCollections){
-							this.expressionList = res.data.data.topEmojis;
-							this.filmList = res.data.data.topCollections;
-						}
-						else{
-							uni.showToast({
-								title: '获取主页信息失败',
-								icon: 'error'
-							});
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
-						uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-					},
-					complete: () => {
-						uni.hideLoading();
-					}
-				});
+				try {
+					const [home, banners, announcements] = await Promise.all([
+						get('/api/home'),
+						get('/api/banners'),
+						get('/api/announcements')
+					]);
 
-				uni.request({
-					url: 'http://localhost:8080/api/banners',
-					method: 'GET',
-					header: {
-						'AccessToken' : token
-					},
-					success: (res) => {
-						if(res.statusCode === 200 && res.data){
-							this.swipers = res.data;
-						}
-						else{
-							uni.showToast({
-								title: '获取信息失败',
-								icon: 'error'
-							});
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
-						uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-					},
-					complete: () => {
-						uni.hideLoading();
+					if (home) {
+						this.expressionList = home.topEmojis;
+						this.filmList = home.topCollections;
 					}
-				});
+					else {
+						uni.showToast({
+							title: '获取信息失败',
+							icon: 'none'
+						});
+					}
 
-				uni.request({
-					url: 'http://localhost:8080/api/announcements',
-					method: 'GET',
-					header: {
-						'AccessToken' : token
-					},
-					success: (res) => {
-						if(res.statusCode === 200 && res.data){
-							this.title = res.data[0];
-						}
-						else{
-							uni.showToast({
-								title: '获取信息失败',
-								icon: 'error'
-							});
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
-						uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-					},
-					complete: () => {
-						uni.hideLoading();
+					if (banners) {
+						this.swipers = banners;
 					}
-				});
+					else {
+						uni.showToast({
+							title: '获取信息失败',
+							icon: 'none'
+						});
+					}
+
+					if (announcements) {
+						this.title = announcements[0];
+					}
+					else {
+						uni.showToast({
+							title: '获取信息失败',
+							icon: 'none'
+						});
+					}
+				}
+				catch (err) {
+					console.error('API请求失败', err);
+				}
+				finally {
+					uni.hideLoading();
+				}
 			},
 
 			handleSearchSelected(searchName) {
@@ -386,7 +318,7 @@
 			handlecheckmore(num){
 				if(num === 1) var urll = '/pages/hotexpression/hotexpression';
 				else var urll = '/pages/hotfilm/hotfilm';
-				
+
 				uni.navigateTo({
 				  url: urll
 				});
@@ -398,9 +330,9 @@
 				});
 			},
 
-			handleclickfilm(filmid){
+			handleclickfilm(filmid, filmName, coverUrl){
 				uni.navigateTo({
-					url: `/pages/filmdetail/filmdetail?filmId=${filmid}`
+					url: `/pages/filmdetail/filmdetail?filmId=${filmid}&filmName=${filmName}&coverUrl=${coverUrl}`
 				});
 			}
 		}
@@ -413,8 +345,6 @@
 		flex-direction: column;
 		width: 100%;
 	}
-
-	
 
 	.content {
 		position: relative;
@@ -444,7 +374,7 @@
 
 	.container{
 		position: absolute;
-		z-index: 9; 
+		z-index: 9;
 		width: 347px;
 		top: 65px;
 	}

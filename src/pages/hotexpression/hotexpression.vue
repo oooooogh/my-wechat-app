@@ -3,7 +3,7 @@
 
         <!-- 搜索框 -->
         <view class="searchbar">
-            <Searchbar 
+            <Searchbar
                 placeholder="想要什么表情包呢"
                 :search-data="mockExpressionData"
                 @selected="handleSearchSelected"
@@ -13,11 +13,11 @@
 
         <!-- 导航栏 -->
         <view class="tabbar">
-            <text 
+            <text
                 v-for="item in tabbarList"
                 :key="item.id"
-                class="tabbartext" 
-                :class="{ 'text-active' : item.id === activeTabId }" 
+                class="tabbartext"
+                :class="{ 'text-active' : item.id === activeTabId }"
                 @click="handleChangetab(item.id)"
             >
                 {{ item.text }}
@@ -28,13 +28,13 @@
         <!-- 表情包 -->
         <view class="expressions">
             <view class="expcontainer">
-                <view 
+                <view
                     v-for="item in expList"
                     :key="item.emojiId"
                     class="container"
                 >
-                    <image 
-                        :src="item.imageUrl" 
+                    <image
+                        :src="item.imageUrl"
                         class="exp"
                         @click="handleclickexp(item.emojiId,item.name,item.imageUrl)"
                     ></image>
@@ -45,6 +45,9 @@
 </template>
 
 <script>
+    import config from '@/config'
+    import { get } from '@/utils/request'
+
     export default {
 		data() {
 			return {
@@ -52,7 +55,7 @@
 					'猫和老鼠', '小黄人', '派大星', '海绵宝宝', '汤姆猫',
 					'杰瑞鼠', '奥特曼', '熊猫头', '打工人', '萌娃'
 				],
-                
+
                 activeTabId: 1,
                 tabbarList:[
                     { id: 1, text:'全部' },
@@ -73,52 +76,42 @@
 			}
 		},
 		onLoad() {
-            // this.fetchExpressionsByType(1);
+			if (!config.useMock) this.fetchExpressionsByType(this.activeTabId)
 		},
 		methods: {
-            fetchExpressionsByType(id){
-                const token = uni.getStorageSync('token');
-                const URL = id === 1 ? 'http://localhost:8080/api/emojis/GetAllEmojis' : `http://localhost:8080/api/emojis/collection/${id}`
+            async fetchExpressionsByType(id){
+                const URL = id === 1 ? '/api/emojis/GetAllEmojis' : '/api/emojis/collection/' + id
+
                 uni.showLoading({
                     title: '正在加载表情包',
                     mask: true
                 });
 
-                uni.request({
-                    url: URL,
-                    method: 'GET',
-                    header: {
-                        'AccessToken' : token
-                    },
-                    success: (res) => {
-                        if(res.statusCode === 200 && res.data.data){
-                            this.exp = res.data.data
-                        }
-                        else{
-                            uni.showToast({
-                                title: '获取信息失败',
-								icon: 'error'
-                            });
-                        }
-                    },
-                    fail: (err) => {
-                        console.error('API请求失败',err),
-                        uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-                    },
-                    complete: () => {
-                        uni.hideLoading();
+                try {
+                    const payload = await get(URL)
+                    if (payload) {
+                        this.expList = payload
                     }
-                })
+                    else{
+                        uni.showToast({
+                            title: '获取信息失败',
+							icon: 'error'
+                        });
+                    }
+                }
+                catch (err) {
+                    console.error('API请求失败',err)
+                }
+                finally {
+                    uni.hideLoading()
+                }
             },
 
             handleChangetab(id){
                 if(id === this.activeTabId) return;
 
                 this.activeTabId = id
-                // this.fetchExpressionsByType(id);
+                if (!config.useMock) this.fetchExpressionsByType(id)
             },
 
             handleSearchSelected(searchName) {

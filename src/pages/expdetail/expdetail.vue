@@ -23,6 +23,9 @@
 </template>
 
 <script>
+    import config from '@/config'
+    import { get, post, del } from '@/utils/request'
+
     export default {
         data() {
             return {
@@ -38,96 +41,55 @@
             this.id = parseInt(option.expId,10); // 字符串转换成整数
             this.text = option.expText;
             this.src = option.expSrc;
-            // this.fetchisCollect();
+            if (!config.useMock) this.fetchisCollect();
         },
         methods: {
-            fetchisCollect(){
-                const token = uni.getStorageSync('token');
-
-                uni.request({
-					url: `http://localhost:8080/api/user-favorite-emojis/${this.userId}/${this.id}`,
-					method: 'GET',
-					header: {
-						'AccessToken' : token
-					},
-					success: (res) => {
-						if(res.statusCode === 200 ){
-							this.isCollect = true;
-						}
-						else{
-							this.isCollect = false;
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
-						uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-					}
-				});
+            async fetchisCollect(){
+                try {
+                    await get('/api/user-favorite-emojis/' + this.userId + '/' + this.id);
+                    this.isCollect = true;
+                }
+                catch (err) {
+                    this.isCollect = false;
+                    console.error('API请求失败', err);
+                }
             },
-            
-            handlecollect(){
-                const token = uni.getStorageSync('token');
 
-                const DATA = this.isCollect  ? {} : { userId: this.userId, emojiId: this.id, "isPublic": true };
+            async handlecollect(){
+                if (config.useMock) {
+                    uni.showToast({
+                        title: this.isCollect ? '取消收藏成功' : '收藏成功',
+                        icon: 'success'
+                    });
+                    this.isCollect = this.isCollect ? false : true;
+                    return;
+                }
 
-                const URL = this.isCollect ? `/api/user-favorite-emojis/${this.userId}/${this.id}` : 'http://localhost:8080/api/user-favorite-emojis';
-                const Method = this.isCollect ? 'DELETE' : 'POST';
-
-                const toast = this.isCollect  ? '取消收藏' : '收藏' ;
-                const successToast = toast + '成功';
-                const failToast = toast + '失败';
-                const loadingTitle = toast + '中...';
-
-                uni.showToast({
-                    title: successToast,
-                    icon: 'success'
-                });
-                this.isCollect = this.isCollect ? false : true;
-
-                // uni.showLoading({
-                //     title: loadingTitle,
-                //     mask: true
-                // });
-
-                // uni.request({
-                //     url: URL,
-                //     method: Method,
-                //     header:{
-                //         'AccessToken' : token
-                //     },
-                //     data: {
-                //         collectData: DATA
-                //     },
-                //     success: (res) => {
-                //         if (res.statusCode === 200){
-                //             uni.showToast({
-                //                 title: successToast,
-                //                 icon: 'success'
-                //             });
-                //             this.isCollect = this.isCollect ? false : true;
-                //         }
-                //         else{
-                //             uni.showToast({
-                //                 title: failToast,
-                //                 icon: 'error'
-                //             });
-                //         }
-                //     },
-                //     fail: (err) => {
-                //         console.error('API请求失败',err);
-                //         uni.showToast({
-                //             title: '网络似乎出了点问题',
-                //             icon: 'none'
-                //         });
-                //     },
-                //     complete: () => {
-                //         //请求成功后将showLoading关闭
-                //         uni.hideLoading();
-                //     }
-                // });
+                try {
+                    if (this.isCollect) {
+                        await del('/api/user-favorite-emojis/' + this.userId + '/' + this.id);
+                        this.isCollect = false;
+                        uni.showToast({
+                            title: '取消收藏成功',
+                            icon: 'success'
+                        });
+                    }
+                    else {
+                        await post('/api/user-favorite-emojis', { userId: this.userId, emojiId: this.id, isPublic: true });
+                        this.isCollect = true;
+                        uni.showToast({
+                            title: '收藏成功',
+                            icon: 'success'
+                        });
+                    }
+                }
+                catch (err) {
+                    console.error('API请求失败', err);
+                    uni.showToast({
+                        title: this.isCollect ? '取消收藏失败，请检查网络' : '收藏失败，请检查网络',
+                        icon: 'none'
+                    });
+                }
             },
             handlesave(){
                 uni.showLoading({
@@ -201,7 +163,7 @@
         gap: 7px;
         transition: transform background-color 0.3s;
     }
-    
+
     .active-button{
         background-color: #8fb4ff;
         transform: scale(0.98);

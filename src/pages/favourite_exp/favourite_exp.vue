@@ -1,11 +1,11 @@
 <template>
 	<view class="content">
         <view class="expcontainer">
-            <view 
+            <view
                 v-for="item in expressionList"
                 :key="item.emojiId"
                 class="expression"
-                @click="handleclickexp(item.id,item.text,item.imageUrl)"
+                @click="handleclickexp(item.emojiId, item.name, item.imageUrl)"
             >
                 <image class="photo" :src="item.imageUrl"></image>
                 <text class="text">{{ item.name }}</text>
@@ -15,6 +15,9 @@
 </template>
 
 <script>
+	import config from '@/config'
+	import { get } from '@/utils/request'
+
 	export default {
 		data() {
 			return {
@@ -32,44 +35,33 @@
 		},
 		onLoad() {
             this.userId = uni.getStorageSync('userId');
-            // this.fetchExpression();
+            if (!config.useMock) this.fetchExpression();
 		},
 		methods: {
-            fetchExpression(){
-                const token = uni.getStorageSync('token');
+            async fetchExpression(){
                 uni.showLoading({
                     title: '正在加载表情包',
                     mask: true
                 });
-                
-                uni.request({
-                    url: `http://localhost:8080/api/user-favorite-emojis/user/${this.userId}`,
-                    method: 'GET',
-                    header: {
-                        'AccessToken' : token
-                    },
-                    success: (res) => {
-                        if(res.statusCode === 200 && res.data.data){
-                            this.expressionList = res.data.data
-                        }
-                        else{
-                            uni.showToast({
-                                title: '获取信息失败',
-								icon: 'error'
-                            });
-                        }
-                    },
-                    fail: (err) => {
-                        console.error('API请求失败',err),
+
+                try {
+                    const payload = await get('/api/user-favorite-emojis/user/' + this.userId);
+                    if (payload) {
+                        this.expressionList = payload
+                    }
+                    else {
                         uni.showToast({
-                            title: '网络似乎出了点问题',
+                            title: '获取信息失败',
                             icon: 'none'
                         });
-                    },
-                    complete: () => {
-                        uni.hideLoading();
                     }
-                });
+                }
+                catch (err) {
+                    console.error('API请求失败', err);
+                }
+                finally {
+                    uni.hideLoading();
+                }
             },
 
             handleclickexp(expid, exptext, expsrc){
@@ -81,6 +73,7 @@
 	}
 </script>
 
+
 <style>
 	.content {
 		display: flex;
@@ -90,6 +83,7 @@
         width: 100%;
 	}
 
+
     .expcontainer{
         display: flex;
         width: 100%;
@@ -97,6 +91,7 @@
         justify-content: flex-start;
         flex-wrap: wrap;
     }
+
 
     .expression{
         display: flex;
@@ -106,10 +101,12 @@
         transition: transform 0.2s;
     }
 
+
     .expression:active {
         transform: scale(0.95);
         opacity: 0.8;
     }
+
 
     .photo{
         width: 100px;
@@ -117,5 +114,6 @@
         margin: 12px 0 6px;
         border-radius: 16%;
     }
+
 
 </style>

@@ -5,16 +5,16 @@
 		<view class="filsearch">
 			<view class="outexpcontainer" :style="{ width: filmwidth + 20 + 'px' }">
 				<view class="inexpcontainer" :style="{ width: filmwidth + 'px' }">
-					<Uploader 
+					<Uploader
 						mode="Uploader"
-						crosshairSize="60px" 
+						crosshairSize="60px"
 						:uploaderUrl="uploaderUrl"
-						@tap="handleUploader" 
+						@tap="handleUploader"
 					/>
 				</view>
 			</view>
 			<view class="searchbar">
-				<Searchbar 
+				<Searchbar
 					placeholder="想在影视作品里找什么表情包呢"
 					:search-data="mockExpressionData"
 					@selected="handleSearchSelected"
@@ -36,7 +36,7 @@
 			</view>
 			<view class="resultexp" v-if="isSearching">
 				<view class="container">
-					<view 
+					<view
 						v-for="item in expList"
 						:key="item.id"
 						class="expcontainer"
@@ -52,6 +52,8 @@
 <script>
 	import Uploader from '@/components/Uploader/Uploader.vue';
 	import Searchbar from '@/components/Searchbar/Searchbar.vue';
+	import config from '@/config'
+	import { get } from '@/utils/request'
 
 	export default {
 		components:{
@@ -90,46 +92,37 @@
 				],
 			}
 		},
+		onLoad() {
+			if (!config.useMock) this.fetchFilmList()
+		},
 		methods: {
-			fetchFilmList(){
-				const token = uni.getStorageSync('token');
-
+			async fetchFilmList(){
 				uni.showLoading({
 					title: '正在加载影视套图',
 					mask: true
 				});
 
-				uni.request({
-					url:'http://localhost:8080/api/collections/top/films?topN=5',
-					method: 'GET',
-					header:{
-						'AccessToken' : token
-					},
-					success: (res) => {
-						if(res.statusCode === 200 && res.data.data ){
-							this.filmdetailList = res.data.data;
-							for (let i=0; i < filmdetailList.length; i++){ 
-								this.filmList[i] = this.filmdetailList[i].name;
-							}
+				try {
+					const payload = await get('/api/collections/top/films', { topN: 5 });
+					if (payload) {
+						this.filmdetailList = payload;
+						for (let i = 0; i < this.filmList.length && i < this.filmdetailList.length; i++) {
+							this.filmList[i] = this.filmdetailList[i].name;
 						}
-						else{
-							uni.showToast({
-								title: '获取信息失败',
-								icon: 'error'
-							});
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
-						uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-					},
-					complete: () => {
-						uni.hideLoading();
 					}
-				});
+					else{
+						uni.showToast({
+							title: '获取信息失败',
+							icon: 'error'
+						});
+					}
+				}
+				catch (err) {
+					console.error('API请求失败',err);
+				}
+				finally {
+					uni.hideLoading();
+				}
 			},
 
 			//上传图片部分
@@ -166,7 +159,6 @@
 			//搜索部分
 			handleSearchSelected(searchName){
 				if(this.uploaderUrl){
-					this.fetchfilmSearchexp(searchName);
 					this.searchTitle = searchName;
 					this.isSearching = true;
 				}
@@ -176,45 +168,6 @@
 						icon: 'error'
 					});
 				}
-			},
-			fetchfilmSearchexp(searchName){
-				const token = uni.getStorageSync('token');
-
-				// uni.showLoading({
-				// 	title: '搜索表情包中',
-				// 	mask: true
-				// });
-
-				// uni.request({
-				// 	url: ``,
-				// 	method: 'GET',
-				// 	header: {
-				// 		'AccessToken' : token
-				// 	},
-				// 	success: (res) => {
-				// 		if(res.statusCode === 200 && res.data.expList){
-				// 			this.title = res.data.expList;
-				// 			// this.searchTitle = searchName;
-				// 			// this.isSearching = true;
-				// 		}
-				// 		else{
-				// 			uni.showToast({
-				// 				title: '获取信息失败',
-				// 				icon: 'error'
-				// 			});
-				// 		}
-				// 	},
-				// 	fail: (err) => {
-				// 		console.error('API请求失败',err);
-				// 		uni.showToast({
-                //             title: '网络似乎出了点问题',
-                //             icon: 'none'
-                //         });
-				// 	},
-				// 	complete: () => {
-				// 		uni.hideLoading();
-				// 	}
-				// });
 			},
 
 			handleclickexp(expid, exptext, expsrc){

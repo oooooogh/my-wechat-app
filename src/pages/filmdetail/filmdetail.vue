@@ -11,13 +11,13 @@
             </view>
         </view>
         <view class="expcontainer">
-            <view 
+            <view
                 v-for="item in expList"
                 :key="item.emojiId"
                 class="expression"
             >
-                <image 
-                    class="photo" 
+                <image
+                    class="photo"
                     :src="item.imageUrl"
                     @click="handleclickexp(item.emojiId,item.name,item.imageUrl)"
                 ></image>
@@ -27,6 +27,9 @@
 </template>
 
 <script>
+    import config from '@/config'
+    import { get, post, del } from '@/utils/request'
+
     export default {
         data() {
             return {
@@ -49,74 +52,47 @@
         onLoad(option){
             this.userId = uni.getStorageSync('userId');
             this.filmId = parseInt(option.filmId,10);
-            this.filmName = option.filmName;
-            this.Cover = option.Cover;
-            // this.fetchFilm(this.filmId);
+            this.filmName = option.filmName || this.filmName;
+            this.Cover = option.coverUrl || this.Cover;
+            if (!config.useMock) this.fetchFilm(this.filmId);
+            if (!config.useMock) this.fetchisCollect();
         },
         methods: {
-            fetchisCollect(){
-                const token = uni.getStorageSync('token');
-
-                uni.request({
-					url: `http://localhost:8080/api/user-favorite-collections/${this.userId}/${this.filmId}`,
-					method: 'GET',
-					header: {
-						'AccessToken' : token
-					},
-					success: (res) => {
-						if(res.statusCode === 200 ){
-							this.isCollect = true;
-						}
-						else{
-							this.isCollect = false;
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
-						uni.showToast({
-                            title: '网络似乎出了点问题',
-                            icon: 'none'
-                        });
-					}
-				});
+            async fetchisCollect(){
+                try {
+                    await get('/api/user-favorite-collections/' + this.userId + '/' + this.filmId);
+                    this.isCollect = true;
+                }
+                catch (err) {
+                    this.isCollect = false;
+                    console.error('API请求失败', err);
+                }
             },
 
-            fetchFilm(filmId){
-                const token = uni.getStorageSync('token');
-
+            async fetchFilm(filmId){
                 uni.showLoading({
                     title: '加载中',
                     mask: true
                 });
 
-                uni.request({
-					url: `http://localhost:8080/api/emojis/collection/${filmId}`,
-					method: 'GET',
-					header: {
-						'AccessToken' : token
-					},
-					success: (res) => {
-						if(res.statusCode === 200 && res.data.data){
-                            this.epxList = res.data.data;
-						}
-						else{
-							uni.showToast({
-								title: '获取信息失败',
-								icon: 'error'
-							});
-						}
-					},
-					fail: (err) => {
-						console.error('API请求失败',err);
-						uni.showToast({
-                            title: '网络似乎出了点问题',
+                try {
+                    const payload = await get('/api/emojis/collection/' + filmId);
+                    if (payload) {
+                        this.expList = payload;
+                    }
+                    else {
+                        uni.showToast({
+                            title: '获取信息失败',
                             icon: 'none'
                         });
-					},
-					complete: () => {
-						uni.hideLoading();
-					}
-				});
+                    }
+                }
+                catch (err) {
+                    console.error('API请求失败', err);
+                }
+                finally {
+                    uni.hideLoading();
+                }
             },
 
             handleclickexp(expid, exptext, expsrc){
@@ -125,93 +101,43 @@
 				});
 			},
 
-            handleCollect(){
+            async handleCollect(){
+                if (config.useMock) {
+                    uni.showToast({
+                        title: this.isCollect ? '取消收藏成功' : '收藏成功',
+                        icon: 'success'
+                    });
+                    this.isCollect = this.isCollect ? false : true;
+                    return;
+                }
 
-                // const currentTime = this.getFormattedCurrentTime();
-                // const DATA = this.isCollect  ? {} : { favorAt: currentTime, "isPublic": true, emojiId: this.id, userId: this.userId };
-
-                const URL = this.isCollect ? `/api/user-favorite-collections/${this.userId}/${this.filmId}` : 'http://localhost:8080/api/user-favorite-collections';
-                const Method = this.isCollect ? 'DELETE' : 'POST';
-
-                const toast = this.isCollect  ? '取消收藏' : '收藏';
-                const successToast = toast + '成功';
-                const failToast = toast + '失败';
-                const loadingTitle = toast + '中...';
-
-                uni.showToast({
-                    title: successToast,
-                    icon: 'success'
-                });
-
-                this.isCollect = this.isCollect  ? false : true;
-
-                // uni.showLoading({
-                //     title: loadingTitle,
-                //     mask: true
-                // });
-
-                // uni.request({
-                //     url: URL,
-                //     method: Method,
-                //     data: {
-                //         'AccessToken' : this.uerId
-                //     },
-                //     success: (res) => {
-                //         if(res.statusCode === 200){
-
-                //             uni.showToast({
-                //                 title: successToast,
-                //                 icon: 'success'
-                //             });
-
-                //             this.isCollect = this.isCollect  ? false : true;
-                //         }
-                //         else{
-                //             uni.showToast({
-                //                 title: res.data.message || failToast,
-                //                 icon: 'none'
-                //             });
-                //         }
-                //     },
-                //     fail: (err) =>{
-                //         console.error('API请求失败',err);
-                //         uni.showToast({
-                //             title: '网络错误，请重试',
-                //             icon: 'none'
-                //         });
-                //     },
-                //     complete: () =>{
-                //         uni.hideLoading();
-                //     }
-                // });
+                try {
+                    if (this.isCollect) {
+                        await del('/api/user-favorite-collections/' + this.userId + '/' + this.filmId);
+                        this.isCollect = false;
+                        uni.showToast({
+                            title: '取消收藏成功',
+                            icon: 'success'
+                        });
+                    }
+                    else {
+                        await post('/api/user-favorite-collections', { userId: this.userId, collectionId: this.filmId, isPublic: true });
+                        this.isCollect = true;
+                        uni.showToast({
+                            title: '收藏成功',
+                            icon: 'success'
+                        });
+                    }
+                }
+                catch (err) {
+                    console.error('API请求失败', err);
+                    uni.showToast({
+                        title: this.isCollect ? '取消收藏失败，请检查网络' : '收藏失败，请检查网络',
+                        icon: 'none'
+                    });
+                }
             },
 
-
-            // /**
-            //  * 获取并格式化当前时间
-            //  * 格式化後的日期時間字串，例如 "2025-07-11 17:27:10"
-            //  */
-            // getFormattedCurrentTime() {
-
-            //     const now = new Date();
-
-            //     const year = now.getFullYear(); 
-                
-            //     const month = now.getMonth() + 1; 
-                
-            //     const day = now.getDate(); 
-            //     const hours = now.getHours(); 
-            //     const minutes = now.getMinutes(); 
-            //     const seconds = now.getSeconds(); 
-
-            //     const formattedMonth = String(month).padStart(2, '0');
-            //     const formattedDay = String(day).padStart(2, '0');
-            //     const formattedHours = String(hours).padStart(2, '0');
-            //     const formattedMinutes = String(minutes).padStart(2, '0');
-            //     const formattedSeconds = String(seconds).padStart(2, '0');
-
-            //     return `${year}-${formattedMonth}-${formattedDay} ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-            // }
         }
     }
 </script>
