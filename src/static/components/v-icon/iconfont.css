@@ -1,0 +1,95 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 4930124 */
+  src: url('iconfont.woff2?t=1752043948822') format('woff2'),
+       url('iconfont.woff?t=1752043948822') format('woff'),
+       url('iconfont.ttf?t=1752043948822') format('truetype');
+}
+
+[class*="v-icon-"],
+[class^="v-icon-"] {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.v-icon-xiazai:before {
+  content: "\e606";
+  color: rgb(50, 50, 50);
+}
+
+.v-icon-xiaolian:before {
+  content: "\e688";
+  color: black;
+  font-size: 30px;
+}
+
+.v-icon-addd:before {
+  content: "\e605";
+  color: #40A2FF;
+  font-size: 45px;
+}
+
+.v-icon-text:before {
+  content: "\e63f";
+  color: #ffffff;
+}
+
+.v-icon-picture:before {
+  content: "\e719";
+  color: #ffffff;
+}
+
+.v-icon-crop-full:before {
+  content: "\ea33";
+  color: #ffffff;
+  font-size: 17px;
+}
+
+.v-icon-masaic:before {
+  content: "\e7eb";
+  color: #ffffff;
+  font-size: 19px;
+}
+
+.v-icon-edit:before {
+  content: "\e601";
+  color: #40A2FF;
+}
+
+.v-icon-right:before {
+  content: "\e65f";
+  font-size: 10px;
+}
+
+.v-icon-hot:before {
+  content: "\e600";
+  font-size: 27px;
+}
+
+.v-icon-likes:before {
+  content: "\e613";
+  color: #40A2FF;
+}
+
+.v-icon-aboutus:before {
+  content: "\e625";
+  color: #40A2FF;
+}
+
+.v-icon-expression:before {
+  content: "\e60c";
+  color: #40A2FF;
+}
+
+.v-icon-likefilms:before {
+  content: "\e657";
+  color: #40A2FF;
+}
+
+.v-icon-agreement:before {
+  content: "\e99c";
+  color: #40A2FF;
+}
+

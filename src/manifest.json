@@ -1,6 +1,6 @@
 {
 	"name": "",
-	"appid": "",
+	"appid": "wxb681e91ac41654d5",
 	"description": "",
 	"versionName": "1.0.0",
 	"versionCode": "100",
@@ -54,11 +54,14 @@
 
 	},
 	"mp-weixin": { /* 微信小程序特有相关 */
-		"appid": "",
+		"appid": "wxb681e91ac41654d5",
 		"setting": {
 			"urlCheck": false
 		},
-		"usingComponents": true
+		"usingComponents": true,
+		"useExtendedLib": {   //引入weUI组件库
+			"weui": true
+		}
 	},
 	"mp-alipay" : {
         "usingComponents" : true

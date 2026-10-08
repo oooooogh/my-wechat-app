@@ -1,16 +1,158 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/index/index",
+			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "表情包大全",
+				"mp-weixin":{
+					"usingComponents": {   //页面引入所需组件
+						"mp-half-screen-dialog": "weui-miniprogram/half-screen-dialog/half-screen-dialog"
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/searchdetail/searchdetail",
+			"style": {
+				"navigationBarTitleText": "搜索结果"
+			}
+		},
+		{
+			"path": "pages/filmdetail/filmdetail",
+			"style": {
+				"navigationBarTitleText": "影视作品"
+			}
+		},
+		{
+			"path": "pages/expdetail/expdetail",
+			"style": {
+				"navigationBarBackgroundColor": "#6f9af1",
+				"navigationBarTextStyle":"white",
+				"navigationBarTitleText": "表情包"
+			}
+		},
+		{
+			"path": "pages/hotexpression/hotexpression",
+			"style": {
+				"navigationBarTitleText": "表情包合集"
+			}
+		},
+		{
+			"path": "pages/hotfilm/hotfilm",
+			"style": {
+				"navigationBarTitleText": "影视作品合集"
+			}
+		},
+		{
+			"path": "pages/favourites/favourites",
+			"style": {
+				"navigationBarTitleText": "个人收藏"
+			}
+		},
+		{
+			"path": "pages/modification/modification",
+			"style": {
+				"navigationBarTitleText": "资料修改"
+			}
+		},
+		{
+			"path": "pages/nameedit/nameedit",
+			"style": {
+				"navigationBarTitleText": "更改名字"
+			}
+		},
+		{
+			"path": "pages/signatureedit/signatureedit",
+			"style": {
+				"navigationBarTitleText": "个人简介"
+			}
+		},
+		{
+			"path": "pages/favourite_exp/favourite_exp",
+			"style": {
+				"navigationBarTitleText": "表情包收藏"
+			}
+		},
+		{
+			"path": "pages/favourite_films/favourite_films",
+			"style": {
+				"navigationBarTitleText": "影视套图收藏"
+			}
+		},
+		{
+			"path": "pages/myexpressions/myexpressions",
+			"style": {
+				"navigationBarTitleText": "合成的表情包"
+			}
+		},
+		{
+			"path": "pages/aboutus/aboutus",
+			"style": {
+				"navigationBarTitleText": "关于我们"
+			}
+		},
+		{
+			"path": "pages/agreement/agreement",
+			"style": {
+				"navigationBarTitleText": "用户协议"
+			}
+		},
+		{
+			"path": "pages/extension/extension",
+			"style": {
+				"navigationBarTitleText": "表情包拓展",
+				"navigationBarBackgroundColor": "#6f9af1",
+				"navigationBarTextStyle":"white",
+				"mp-weixin":{
+					"usingComponents": {   //页面引入所需组件
+						"color-picker": "/static/components/color-picker/color-picker"
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/text_search/text_search",
+			"style": {
+				"navigationBarTitleText": "文字搜索",
+				"navigationBarBackgroundColor": "#6f9af1",
+				"navigationBarTextStyle":"white"
 			}
 		}
 	],
+	"tabBar": {
+		"color": "#A7A7A7",
+		"selectedColor": "#40A2FF",
+    	"backgroundColor": "#FFFFFF",
+		"borderStyle": "white",
+		"list": [
+			{
+				"pagePath": "pages/home/home",
+				"text": "首页",
+				"iconPath": "static/home/home.png",
+				"selectedIconPath": "static/home/home_selected.png"
+			},
+			{
+				"pagePath": "pages/extension/extension",
+				"text": "拓展",
+				"iconPath": "static/extension/extension.png",
+				"selectedIconPath": "static/extension/extension_selected.png"
+			},
+			{
+				"pagePath": "pages/text_search/text_search",
+				"text": "文字搜索",
+				"iconPath": "static/text_search/search.png",
+				"selectedIconPath": "static/text_search/search_selected.png"
+			},
+			{
+				"pagePath": "pages/favourites/favourites",
+				"text": "收藏",
+				"iconPath": "static/favourites/favourites.png",
+				"selectedIconPath": "static/favourites/favourites_selected.png"
+			}
+		]
+	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarBackgroundColor": "#F8F8F8"
 	}
 }
